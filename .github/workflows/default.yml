@@ -31,28 +31,16 @@ jobs:
         site: [ "site1", "site2", "site3" ]
     container:
       image: geerlingguy/drupal-vm:latest
+
     services:
-      database:
-        image: mysql:5.6
-        env:
-          MYSQL_ROOT_PASSWORD: root
+      mariadb:
+        image: quay.io/juampynr/drupal8-github-actions:latest
         ports:
           - 33306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-    env:
-      CI: GITHUB_ACTIONS
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER_PASSWORD: drupal
-      MYSQL_USER_NAME: drupal
-      MYSQL_DATABASE_NAME: drupal
-      MYSQL_HOST: database
-      SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      SSH_DEPLOYMENT_KEY: ${{ secrets.GA_SSH_PRIVATE_KEY }}
-      SITE: ${{ matrix.site }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-    #steps:
+    steps:
     #  - name: Install SSH Key
     #    uses: shimataro/ssh-key-action@v2
     #    with:
