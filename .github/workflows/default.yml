@@ -1,36 +1,149 @@
-# This is a basic workflow to help you get started with Actions
+name: Drupal deploy workflow
 
-name: My First Deploy Workflow with Github Actions
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  push:
+    branches:
+      - dev
+      - main
+      - 'feature/*'
+      - 'hotfix/*'
+      - 'release/v[0-9].[0-9]+.[0-9]+'
+      - 'v[0-9].[0-9]+.[0-9]+'
+    tags:
+      - 'v[0-9].[0-9]+.[0-9]+'
+  pull_request:
+    branches:
+      - dev
+      - main
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+#defaults:
+#  run:
+#    shell: bash
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+  full:
+    name: Full (Build, Validate, Test', Deploy)
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        site: [ "site1", "site2", "site3" ]
+    container:
+      image: geerlingguy/drupal-vm:latest
+    services:
+      database:
+        image: mysql:5.6
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 33306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    env:
+      CI: GITHUB_ACTIONS
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER_PASSWORD: drupal
+      MYSQL_USER_NAME: drupal
+      MYSQL_DATABASE_NAME: drupal
+      MYSQL_HOST: database
+      SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      SSH_DEPLOYMENT_KEY: ${{ secrets.GA_SSH_PRIVATE_KEY }}
+      SITE: ${{ matrix.site }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.GA_SSH_PRIVATE_KEY }}
+          known_hosts: 'placeholder'
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Validate Composer
+        run: composer validate
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Composer Cache
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        run: composer --no-interaction install --no-progress --prefer-dist --no-suggest --optimize-autoloader -vvv
+
+      # Install Psh CLI.
+      - name: Install Psh CLI
+        run: curl -sS https://platform.sh/cli/installer | php
+
+      # Non-database Psh commands.
+      - name: Spin up environment
+        run: ~/.platformsh/bin/platform environment:activate -p XXX -e ${GITHUB_REF#refs/heads/} --yes
+
+      # If you need to connect to database.
+      - name: Load certificate
+        run: ~/.platformsh/bin/platform ssh-cert:load -y -vvv
+     
+      - name: Add Psh to trusted keys
+        # Replace 'us-2' with your region.
+        run: |
+          ssh-keyscan ssh.us-2.platform.sh >> ~/.ssh/known_hosts
+          ssh-keyscan git.us-2.platform.sh >> ~/.ssh/known_hosts
+
+      - name: Tunnel the db connection
+         # Make sure the tunnel runs in the background (&).
+        run: ~/.platformsh/bin/platform tunnel:single -p XXX -e ${GITHUB_REF#refs/heads/} --relationship=db --port=30123 --yes &
+
+      # Run your actions, like tests
+      - name: Run tests
+        run: php vendor/bin/codecept run
+
+      # End connect to database.
+      - name: Close tunnel
+        run: ~/.platformsh/bin/platform tunnel:close
+
+      
+      - name: Composer install
+        run: |
+          composer validate
+          composer self-update --2
+          composer install
+
+      - name: Node install
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+
+      - name: Install frontend dependencies
+        run: cd web/themes/imalabya && yarn install
+      
+      
+      # For deployment steps below to work, the repository must have
+      # deployment/ssh private key added as a secret with name: SSH_DEPLOYMENT_KEY
+
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Changes in this Release
+            - First Change
+            - Second Change
+          draft: false
+          prerelease: false
+
+    
