@@ -17,9 +17,6 @@ on:
       - dev
       - main
 
-#defaults:
-#  run:
-#    shell: bash
 
 jobs:
   full:
@@ -41,11 +38,6 @@ jobs:
 
 
     steps:
-    #  - name: Install SSH Key
-    #    uses: shimataro/ssh-key-action@v2
-    #    with:
-    #      key: ${{ secrets.GA_SSH_PRIVATE_KEY }}
-    #      known_hosts: 'placeholder'
 
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -69,38 +61,7 @@ jobs:
         run: |
           composer self-update --2
           composer --no-interaction install --no-progress --prefer-dist --no-suggest --optimize-autoloader -vvv
-
-      ## Install Psh CLI.
-      #- name: Install Psh CLI
-      #  run: curl -sS https://platform.sh/cli/installer | php
-
-      # Non-database Psh commands.
-      #- name: Spin up environment
-      #  run: ~/.platformsh/bin/platform environment:activate -p XXX -e ${GITHUB_REF#refs/heads/} --yes
-#
-      ## If you need to connect to database.
-      #- name: Load certificate
-      #  run: ~/.platformsh/bin/platform ssh-cert:load -y -vvv
-     #
-      #- name: Add Psh to trusted keys
-      #  # Replace 'us-2' with your region.
-      #  run: |
-      #    ssh-keyscan ssh.us-2.platform.sh >> ~/.ssh/known_hosts
-      #    ssh-keyscan git.us-2.platform.sh >> ~/.ssh/known_hosts
-
-      #- name: Tunnel the db connection
-      #   # Make sure the tunnel runs in the background (&).
-      #  run: ~/.platformsh/bin/platform tunnel:single -p XXX -e ${GITHUB_REF#refs/heads/} --relationship=db --port=30123 --yes &
-#
-      ## Run your actions, like tests
-      #- name: Run tests
-      #  run: php vendor/bin/codecept run
-#
-      ## End connect to database.
-      #- name: Close tunnel
-      #  run: ~/.platformsh/bin/platform tunnel:close
-
-      
+          
       - name: Composer validate and install
         run: |
           composer validate
@@ -111,14 +72,6 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14.x'
-
-      #- name: Install frontend dependencies
-      #  run: cd web/themes/imalabya && yarn install
-      
-      
-      # For deployment steps below to work, the repository must have
-      # deployment/ssh private key added as a secret with name: SSH_DEPLOYMENT_KEY
-
 
       - name: Create Release
         id: create_release
@@ -139,7 +92,3 @@ jobs:
       - name: Sleep for 30 seconds to complete P.sh actions
         run: sleep 30s
         shell: bash
-      #- name: Sleep for 30 seconds
-      #  uses: jakejarvis/wait-action@master
-      #  with:
-      #    time: '30s'
