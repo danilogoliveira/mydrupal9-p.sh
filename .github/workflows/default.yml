@@ -134,9 +134,9 @@ jobs:
             - Second Change
           draft: false
           prerelease: false
-    
-      
-      - name: Sleep for 30 seconds
+
+
+      - name: Sleep for 30 seconds to complete P.sh actions
         run: sleep 30s
         shell: bash
     
