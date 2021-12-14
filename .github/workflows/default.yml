@@ -1,4 +1,4 @@
-name: Drupal deploy workflow with Platform.sh
+name: Drupal deploy workflow with Platform.sh Dec-14-2021
 
 on:
   workflow_dispatch:
