@@ -46,17 +46,7 @@ jobs:
     #    with:
     #      key: ${{ secrets.GA_SSH_PRIVATE_KEY }}
     #      known_hosts: 'placeholder'
-      
-      - name: Composer install
-        run: |
-          composer validate
-          composer self-update --2
-          composer install
 
-      - name: Node install
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14.x' 
       - name: Checkout Code
         uses: actions/checkout@v2
 
@@ -108,6 +98,17 @@ jobs:
       - name: Close tunnel
         run: ~/.platformsh/bin/platform tunnel:close
 
+      
+      - name: Composer install
+        run: |
+          composer validate
+          composer self-update --2
+          composer install
+
+      - name: Node install
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
 
       - name: Install frontend dependencies
         run: cd web/themes/imalabya && yarn install
