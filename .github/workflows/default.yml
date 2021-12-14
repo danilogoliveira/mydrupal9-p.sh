@@ -43,7 +43,8 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Prepare environment variables
-        run: echo "GITHUB_REF_NAME=$(echo ${GITHUB_REF/refs\/heads\/})" >> $GITHUB_ENV
+        shell: bash
+        run: "echo \"GITHUB_REF_NAME=$(echo ${GITHUB_REF/refs\/heads\/})\" >> $GITHUB_ENV"
 
       - name: Determine Composer cache directory
         shell: bash
