@@ -42,11 +42,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Prepare environment variables
-        run: |
-          "echo "GITHUB_REF_NAME=$(echo ${GITHUB_REF/refs\/heads\/})" >> $GITHUB_ENV"
-          echo $GITHUB_REF_NAME
-          
+      #- name: Prepare environment variables
+      #  run: |
+      #    echo ${GITHUB_REF/refs\/heads\/}
+      #    echo GITHUB_REF_NAME=$(echo ${GITHUB_REF/refs\/heads\/})
+      #    echo $GITHUB_REF_NAME
+
       - name: Determine Composer cache directory
         shell: bash
         run: "echo \"COMPOSER_CACHE_DIR=$(composer config cache-dir)\" >> $GITHUB_ENV"
@@ -84,8 +85,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: "${{ env.GITHUB_REF_NAME }}"
-          release_name: "${{ env.GITHUB_REF_NAME }}"
+          tag_name: "release/v1.5.0"
+          release_name: "release/v1.5.0"
           body: |
             Changes in this Release
             - First Change
