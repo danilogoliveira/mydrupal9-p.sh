@@ -66,9 +66,9 @@ jobs:
           key: os-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}-site-${{ matrix.site }}
 
       - name: Install Composer Dependencies
-        run: composer --no-interaction install --no-progress --prefer-dist --no-suggest --optimize-autoloader -vvv
-        with:
-          version: 2
+        run: |
+          composer self-update --2
+          composer --no-interaction install --no-progress --prefer-dist --no-suggest --optimize-autoloader -vvv
 
       # Install Psh CLI.
       - name: Install Psh CLI
