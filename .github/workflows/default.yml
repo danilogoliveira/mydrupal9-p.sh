@@ -1,4 +1,4 @@
-name: Drupal deploy workflow
+name: Drupal deploy workflow with Platform.sh
 
 on:
   workflow_dispatch:
