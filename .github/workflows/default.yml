@@ -88,20 +88,20 @@ jobs:
       #    ssh-keyscan ssh.us-2.platform.sh >> ~/.ssh/known_hosts
       #    ssh-keyscan git.us-2.platform.sh >> ~/.ssh/known_hosts
 
-      - name: Tunnel the db connection
-         # Make sure the tunnel runs in the background (&).
-        run: ~/.platformsh/bin/platform tunnel:single -p XXX -e ${GITHUB_REF#refs/heads/} --relationship=db --port=30123 --yes &
-
-      # Run your actions, like tests
-      - name: Run tests
-        run: php vendor/bin/codecept run
-
-      # End connect to database.
-      - name: Close tunnel
-        run: ~/.platformsh/bin/platform tunnel:close
+      #- name: Tunnel the db connection
+      #   # Make sure the tunnel runs in the background (&).
+      #  run: ~/.platformsh/bin/platform tunnel:single -p XXX -e ${GITHUB_REF#refs/heads/} --relationship=db --port=30123 --yes &
+#
+      ## Run your actions, like tests
+      #- name: Run tests
+      #  run: php vendor/bin/codecept run
+#
+      ## End connect to database.
+      #- name: Close tunnel
+      #  run: ~/.platformsh/bin/platform tunnel:close
 
       
-      - name: Composer install
+      - name: Composer validate and install
         run: |
           composer validate
           composer self-update --2
