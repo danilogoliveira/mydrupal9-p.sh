@@ -70,23 +70,23 @@ jobs:
           composer self-update --2
           composer --no-interaction install --no-progress --prefer-dist --no-suggest --optimize-autoloader -vvv
 
-      # Install Psh CLI.
-      - name: Install Psh CLI
-        run: curl -sS https://platform.sh/cli/installer | php
+      ## Install Psh CLI.
+      #- name: Install Psh CLI
+      #  run: curl -sS https://platform.sh/cli/installer | php
 
       # Non-database Psh commands.
-      - name: Spin up environment
-        run: ~/.platformsh/bin/platform environment:activate -p XXX -e ${GITHUB_REF#refs/heads/} --yes
-
-      # If you need to connect to database.
-      - name: Load certificate
-        run: ~/.platformsh/bin/platform ssh-cert:load -y -vvv
-     
-      - name: Add Psh to trusted keys
-        # Replace 'us-2' with your region.
-        run: |
-          ssh-keyscan ssh.us-2.platform.sh >> ~/.ssh/known_hosts
-          ssh-keyscan git.us-2.platform.sh >> ~/.ssh/known_hosts
+      #- name: Spin up environment
+      #  run: ~/.platformsh/bin/platform environment:activate -p XXX -e ${GITHUB_REF#refs/heads/} --yes
+#
+      ## If you need to connect to database.
+      #- name: Load certificate
+      #  run: ~/.platformsh/bin/platform ssh-cert:load -y -vvv
+     #
+      #- name: Add Psh to trusted keys
+      #  # Replace 'us-2' with your region.
+      #  run: |
+      #    ssh-keyscan ssh.us-2.platform.sh >> ~/.ssh/known_hosts
+      #    ssh-keyscan git.us-2.platform.sh >> ~/.ssh/known_hosts
 
       - name: Tunnel the db connection
          # Make sure the tunnel runs in the background (&).
