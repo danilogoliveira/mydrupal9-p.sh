@@ -139,7 +139,7 @@ jobs:
       #- name: Sleep for 30 seconds to complete P.sh actions
       #  run: sleep 30s
       #  shell: bash
-      - name: Sleep for 30 seconds
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '30s'
+      #- name: Sleep for 30 seconds
+      #  uses: jakejarvis/wait-action@master
+      #  with:
+      #    time: '30s'
