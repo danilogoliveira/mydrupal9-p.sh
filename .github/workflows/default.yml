@@ -112,8 +112,8 @@ jobs:
         with:
           node-version: '14.x'
 
-      - name: Install frontend dependencies
-        run: cd web/themes/imalabya && yarn install
+      #- name: Install frontend dependencies
+      #  run: cd web/themes/imalabya && yarn install
       
       
       # For deployment steps below to work, the repository must have
