@@ -72,7 +72,9 @@ jobs:
 
       # Install Psh CLI.
       - name: Install Psh CLI
-        run: curl -sS https://platform.sh/cli/installer | php
+        run: |
+          curl -sS https://platform.sh/cli/installer | php
+          source ~/.bashrc
 
       # Non-database Psh commands.
       - name: Spin up environment
