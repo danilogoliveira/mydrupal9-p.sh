@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Platform.sh settings.
+ * Platform.sh settings. Dec-14-2021
  */
 
 use Drupal\Core\Installer\InstallerKernel;
