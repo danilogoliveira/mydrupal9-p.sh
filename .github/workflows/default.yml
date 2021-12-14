@@ -50,18 +50,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Determine Composer cache directory
+        shell: bash
+        run: "echo \"COMPOSER_CACHE_DIR=$(composer config cache-dir)\" >> $GITHUB_ENV"
 
-      - name: Composer Cache
-        uses: actions/cache@v1
+      - name: Cache dependencies installed with Composer
+        uses: actions/cache@v2
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
+          path: |
+            "${{ env.COMPOSER_CACHE_DIR }}"
+            vendor
+            docroot/core
+            docroot/libraries
+            docroot/modules/contrib
+          key: os-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}-site-${{ matrix.site }}
 
       - name: Install Composer Dependencies
         run: composer --no-interaction install --no-progress --prefer-dist --no-suggest --optimize-autoloader -vvv
