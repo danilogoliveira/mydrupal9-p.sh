@@ -50,8 +50,9 @@ jobs:
         run: |
           GITHUB_BRANCH_NAME=$(echo ${GITHUB_REF/refs\/heads\/}) 
           GITHUB_REF_NAME=${GITHUB_BRANCH_NAME##*/}
-          echo $GITHUB_REF_NAME
-          
+          echo "##[set-output name=branch;]$(echo $GITHUB_REF_NAME)""
+        id: extract_branch  
+
       - name: Determine Composer cache directory
         shell: bash
         run: "echo \"COMPOSER_CACHE_DIR=$(composer config cache-dir)\" >> $GITHUB_ENV"
@@ -90,8 +91,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ github.event.release }}
-          release_name: ${{ github.event.release }}
+          tag_name: ${{ steps.extract_branch.outputs.branch }}
+          release_name: ${{ steps.extract_branch.outputs.branch }}
           body: |
             Changes in this Release
             - First Change
