@@ -96,10 +96,10 @@ jobs:
           body: |
             Changes in this Release
             - Fixed if condition.
-            - Test new release v1.8.3
+            - Test new release v1.8.4
           draft: false
           prerelease: false
-        if: ${{ github.head_ref == 'push' && contains('refs/heads/release') }}
+        if: ${{ github.head_ref == 'refs/heads/release' }}
 
       - name: Sleep for 30 seconds to complete P.sh actions
         run: sleep 30s
