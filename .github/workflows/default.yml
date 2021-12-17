@@ -95,11 +95,10 @@ jobs:
           release_name: ${{ steps.extract_branch.outputs.branch }}
           body: |
             Changes in this Release
-            - First Change
-            - Second Change
+            - Fixed if condition
           draft: false
           prerelease: false
-        if: ${{ github.head_ref == '' }}
+        if: ${{ github.head_ref == 'push' && contains(github.ref, 'refs/tags') }}
 
       - name: Sleep for 30 seconds to complete P.sh actions
         run: sleep 30s
