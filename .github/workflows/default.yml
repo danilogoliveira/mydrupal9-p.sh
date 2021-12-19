@@ -91,7 +91,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ steps.extract_branch.outputs.branch }}  #new tag v1.9.0-t
+          tag_name: ${{ steps.extract_branch.outputs.branch }}  #new tag v1.9.0w
           release_name: ${{ steps.extract_branch.outputs.branch }}
           body: |
             Changes in this Release
@@ -100,6 +100,7 @@ jobs:
           draft: false
           prerelease: false
         if: ${{ github.event_name == 'push' && contains(github.ref_name, 'release/') }}
+
 
       - name: Sleep for 30 seconds to complete P.sh actions
         run: sleep 30s
