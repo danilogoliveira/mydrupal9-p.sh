@@ -1,7 +1,7 @@
 <?php
 
 // phpcs:ignoreFile
-
+// settings.php
 /**
  * @file
  * Drupal site-specific configuration file.
