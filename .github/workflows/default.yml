@@ -107,4 +107,4 @@ jobs:
         shell: bash
 
       - name: Deploy test
-        run: bash $SCRIPT_DIR/deploy_test.sh
+        run: bash ./.github/actions/deploy_test.sh
