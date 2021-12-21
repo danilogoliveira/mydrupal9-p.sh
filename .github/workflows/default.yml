@@ -26,9 +26,10 @@ jobs:
     name: Full (Build, Validate, Test', Deploy)
 
     runs-on: ubuntu-18.04
-    #strategy:
-    #  matrix:
-    #    site: [ "site1", "site2", "site3" ]
+    strategy:
+      matrix:
+        #site: [ "site1", "site2", "site3" ]
+        site: [ "site1" ]
     container:
       image: geerlingguy/drupal-vm:latest
 
