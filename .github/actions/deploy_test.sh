@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 set -ev
-mkdir /tmp/deploy
-cd /tmp/deploy
+mkdir /tmp/blt-deploy
+cd /tmp/blt-deploy
 git init
 cd /
 if [ -d "/tmp/blt-deploy" ]; then rm -rf "/tmp/blt-deploy"; fi
