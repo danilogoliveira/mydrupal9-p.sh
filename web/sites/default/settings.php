@@ -1,7 +1,7 @@
 <?php
 
 // phpcs:ignoreFile
-
+// change permissions to 777
 /**
  * @file
  * Drupal site-specific configuration file.
