@@ -1,4 +1,4 @@
-name: Drupal deploy workflow
+name: Drupal deploy workflow with Platform.sh Dec-14-2021
 
 on:
   workflow_dispatch:
@@ -17,18 +17,19 @@ on:
       - dev
       - main
 
-#defaults:
-#  run:
-#    shell: bash
+defaults:
+  run:
+    shell: bash
 
 jobs:
   full:
     name: Full (Build, Validate, Test', Deploy)
 
     runs-on: ubuntu-18.04
-    #strategy:
-    #  matrix:
-    #    site: [ "site1", "site2", "site3" ]
+    strategy:
+      matrix:
+        #site: [ "site1", "site2", "site3" ]
+        site: [ "site1" ]
     container:
       image: geerlingguy/drupal-vm:latest
 
@@ -41,14 +42,17 @@ jobs:
 
 
     steps:
-    #  - name: Install SSH Key
-    #    uses: shimataro/ssh-key-action@v2
-    #    with:
-    #      key: ${{ secrets.GA_SSH_PRIVATE_KEY }}
-    #      known_hosts: 'placeholder'
 
       - name: Checkout Code
         uses: actions/checkout@v2
+
+      - name: Prepare environment variables
+        shell: bash
+        run: |
+          GITHUB_BRANCH_NAME=$(echo ${GITHUB_REF/refs\/heads\/}) 
+          GITHUB_REF_NAME=${GITHUB_BRANCH_NAME##*/}
+          echo "##[set-output name=branch;]$(echo $GITHUB_REF_NAME)"
+        id: extract_branch  
 
       - name: Determine Composer cache directory
         shell: bash
@@ -70,37 +74,6 @@ jobs:
           composer self-update --2
           composer --no-interaction install --no-progress --prefer-dist --no-suggest --optimize-autoloader -vvv
 
-      ## Install Psh CLI.
-      #- name: Install Psh CLI
-      #  run: curl -sS https://platform.sh/cli/installer | php
-
-      # Non-database Psh commands.
-      #- name: Spin up environment
-      #  run: ~/.platformsh/bin/platform environment:activate -p XXX -e ${GITHUB_REF#refs/heads/} --yes
-#
-      ## If you need to connect to database.
-      #- name: Load certificate
-      #  run: ~/.platformsh/bin/platform ssh-cert:load -y -vvv
-     #
-      #- name: Add Psh to trusted keys
-      #  # Replace 'us-2' with your region.
-      #  run: |
-      #    ssh-keyscan ssh.us-2.platform.sh >> ~/.ssh/known_hosts
-      #    ssh-keyscan git.us-2.platform.sh >> ~/.ssh/known_hosts
-
-      #- name: Tunnel the db connection
-      #   # Make sure the tunnel runs in the background (&).
-      #  run: ~/.platformsh/bin/platform tunnel:single -p XXX -e ${GITHUB_REF#refs/heads/} --relationship=db --port=30123 --yes &
-#
-      ## Run your actions, like tests
-      #- name: Run tests
-      #  run: php vendor/bin/codecept run
-#
-      ## End connect to database.
-      #- name: Close tunnel
-      #  run: ~/.platformsh/bin/platform tunnel:close
-
-      
       - name: Composer validate and install
         run: |
           composer validate
@@ -111,35 +84,28 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14.x'
-
-      #- name: Install frontend dependencies
-      #  run: cd web/themes/imalabya && yarn install
+     
       
-      
-      # For deployment steps below to work, the repository must have
-      # deployment/ssh private key added as a secret with name: SSH_DEPLOYMENT_KEY
-
-
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.extract_branch.outputs.branch }}  #new tag v1.9.0w
+          release_name: ${{ steps.extract_branch.outputs.branch }}
           body: |
             Changes in this Release
-            - First Change
-            - Second Change
+            - Fixed if condition to run only for releases.
+            - Test new release v1.9.0
           draft: false
           prerelease: false
-        if: ${{ github.head_ref == '' }}
+        if: ${{ github.event_name == 'push' && contains(github.ref_name, 'release/') }}
+
 
       - name: Sleep for 30 seconds to complete P.sh actions
         run: sleep 30s
         shell: bash
-      #- name: Sleep for 30 seconds
-      #  uses: jakejarvis/wait-action@master
-      #  with:
-      #    time: '30s'
+
+      - name: Deploy test
+        run: bash ./.github/actions/deploy_test.sh
